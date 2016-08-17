@@ -32,6 +32,8 @@ ENV OPENCAST_SCRIPTS="${OPENCAST_HOME}/docker/scripts" \
     OPENCAST_CONFIG="${OPENCAST_HOME}/etc" \
     OPENCAST_URL="https://bitbucket.org/opencast-community/matterhorn/get/${OPENCAST_VERSION}.tar.gz"
 
+COPY assets/patch/lti.patch /tmp/lti.patch
+
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
  && echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories \
  && apk add --no-cache --virtual .build-deps \
@@ -106,6 +108,8 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/reposit
  && mkdir -p "${OPENCAST_SRC}" "${OPENCAST_HOME}" "${OPENCAST_DATA}" "${OPENCAST_SCRIPTS}" \
  && wget -O /tmp/opencast.tar.gz "${OPENCAST_URL}" \
  && tar -xzf /tmp/opencast.tar.gz --strip 1 -C "${OPENCAST_SRC}" \
+ && cd "${OPENCAST_SRC}" \
+ && patch -p1 < /tmp/lti.patch \
  && cd "${OPENCAST_SRC}/modules/matterhorn-admin-ui-ng" \
  && sed -i 's/"grunt-sass":.*/"grunt-sass": "^1.2.0",/g' package.json \
  && { \
